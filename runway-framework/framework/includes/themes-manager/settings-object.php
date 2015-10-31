@@ -321,18 +321,32 @@ class Themes_Manager_Admin extends Runway_Admin_Object {
 
 		// check if have new screenshot and if true move file to theme folder
 		if ( $_FILES['theme_options']['name']['Screenshot'] != '' ) {
-			imagepng(
-				imagecreatefromstring(
-					$wp_filesystem->get_contents($_FILES['theme_options']['tmp_name']['Screenshot'])
-				),
-				$this->themes_path . '/' . $options['Folder'] . '/screenshot.png'
-			);
-			$options['Screenshot'] = true;
+			
+			//AK - if file type valid image 
+			 $image = wp_get_image_editor($_FILES['theme_options']['tmp_name']['Screenshot']);
+
+			if(!is_wp_error($image)){
+				
+				imagepng(
+					imagecreatefromstring(
+						$wp_filesystem->get_contents($_FILES['theme_options']['tmp_name']['Screenshot'])
+					),
+					$this->themes_path . '/' . $options['Folder'] . '/screenshot.png'
+				);
+				$options['Screenshot'] = true;
+				
+				}
+				
 		}
 
 		// check if have new custom icon and if true move file to theme folder
 		if ( $_FILES['theme_options']['name']['CustomIcon'] != '' ) {
+			
+			//AK - chk if file type valid image 
+			 $image = wp_get_image_editor($_FILES['theme_options']['tmp_name']['CustomIcon']);
 
+		if(!is_wp_error($image)){
+	        
 			imagepng(
 				imagecreatefromstring(
 					$wp_filesystem->get_contents($_FILES['theme_options']['tmp_name']['CustomIcon'])
@@ -340,14 +354,13 @@ class Themes_Manager_Admin extends Runway_Admin_Object {
 				$this->themes_path . '/' . $options['Folder'] . '/custom-icon.png'
 			);
 
-	        $image = wp_get_image_editor($_FILES['theme_options']['tmp_name']['CustomIcon']);
-
-        	if(!is_wp_error($image)){
-	             $image->resize(36, 36);
-    	         $image->save($this->themes_path . '/' . $options['Folder'] . '/custom-icon.png');
-	        }
+	        
+	             @$image->resize(36, 36);
+    	             @$image->save($this->themes_path . '/' . $options['Folder'] . '/custom-icon.png');
 
 			$options['CustomIcon'] = true;
+			
+			}	
 		}
 
 		if ( file_exists( $this->themes_path . '/' . $options['Folder'] . '/custom-icon.png' ) ) {
